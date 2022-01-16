@@ -1,3 +1,5 @@
+name: Release
+
 on:
   push:
     tags:
@@ -5,13 +7,19 @@ on:
 
 jobs:
   create-release:
-    - name: Create Release
-    - uses: taiki-e/create-gh-release-action@v1
-      with:
-        title: Opera $tag
-        changelog: CHANGELOG.md
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Create Release
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          title: Opera $tag
+          changelog: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   releases-matrix:
     name: Build Release Binary
