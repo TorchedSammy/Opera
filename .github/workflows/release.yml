@@ -9,11 +9,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Create Release
+      - uses: actions/checkout@v2
       - uses: taiki-e/create-gh-release-action@v1
         with:
           title: Opera $tag
@@ -21,21 +17,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  releases-matrix:
-    runs-on: ubuntu-latest
+  upload-assets:
     strategy:
       matrix:
-        goos: [linux]
         goarch: ["386", amd64, arm64]
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: wangyoucao577/go-release-action@v1.21
         with:
-          fetch-depth: 0
-    - uses: wangyoucao577/go-release-action@v1.21
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        binary_name: circleload
-        extra_files: LICENSE README.md
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: linux
+          goarch: ${{ matrix.goarch }}
+          binary_name: opera
+          extra_files: LICENSE README.md
