@@ -17,7 +17,7 @@ var wsUrl = "ws://127.0.0.1:24050/ws"
 // uncommented is what gets updated
 var mdata = map[string]interface{}{
 //	"mpris:trackid": dbus.ObjectPath("/1"),
-	"mpris:length": 100000,
+	"mpris:length": 0,
 	"xesam:artist": []string{"Ashnikko"},
 	"xesam:title": "Hi Its Me",
 //	"xesam:genre": []string{"Pop"},
