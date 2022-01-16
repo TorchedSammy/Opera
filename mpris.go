@@ -10,6 +10,12 @@ type player struct{
 	metadata map[string]interface{}
 }
 
+func (p *player) updateData(m map[string]interface{}) {
+	for k, v := range m {
+		p.metadata[k] = v
+	}
+}
+
 func (p *player) Get(iface, prop string) (dbus.Variant, *dbus.Error) {
 	fmt.Println("Get", iface, prop)
 
