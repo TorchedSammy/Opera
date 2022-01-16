@@ -14,19 +14,7 @@ var busName = "org.mpris.MediaPlayer2.opera"
 var objectPath = dbus.ObjectPath("/org/mpris/MediaPlayer2")
 var objectInterface = "org.mpris.MediaPlayer2.Player"
 var wsUrl = "ws://127.0.0.1:24050/ws"
-// uncommented is what gets updated
-var mdata = map[string]interface{}{
-//	"mpris:trackid": dbus.ObjectPath("/1"),
-	"mpris:length": 0,
-	"xesam:artist": []string{"Ashnikko"},
-	"xesam:title": "Hi Its Me",
-//	"xesam:genre": []string{"Pop"},
-//	"xesam:audioBPM": 120,
-//	"xesam:trackNumber": 1,
-//	"xesam:discNumber": 1,
-//	"xesam:url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-//	"mpris:artUrl": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-}
+var mdata metadata
 var currentSet int
 
 func main() {
@@ -41,15 +29,13 @@ func main() {
 	}
 	defer c.Close()
 	initData := getData(c)
+	mdata = metadata{
+		Title: initData.GetMusicTitle(),
+		Artist: initData.GetMusicArtist(),
+	}
 	currentSet = initData.GetSetID()
 
-	opera := &player{
-		metadata: mdata,
-	}
-	opera.updateData(map[string]interface{}{
-		"xesam:artist": []string{initData.GetMusicArtist()},
-		"xesam:title": initData.GetMusicTitle(),
-	})
+	opera := &player{}
 
 	conn.Export(opera, objectPath, "org.freedesktop.DBus.Properties")
 	conn.RequestName(busName, dbus.NameFlagDoNotQueue)
@@ -65,14 +51,12 @@ func main() {
 				continue
 			}
 			currentSet = d.GetSetID()
-			opera.updateData(map[string]interface{}{
-				"xesam:artist": []string{d.GetMusicArtist()},
-				"xesam:title": d.GetMusicTitle(),
-			})
+			mdata.Title = d.GetMusicTitle()
+			mdata.Artist = d.GetMusicArtist()
 
 			fmt.Printf("%s - %s\n", d.GetMusicArtist(), d.GetMusicTitle())
 			conn.Emit(objectPath, "org.freedesktop.DBus.Properties", "PropertiesChanged", map[string]dbus.Variant{
-				"Metadata": dbus.MakeVariant(opera.metadata),
+				"Metadata": dbus.MakeVariant(mdata.toMap()),
 			})
 		}
 	}()
