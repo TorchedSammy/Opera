@@ -22,7 +22,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   releases-matrix:
-    name: Build Release Binary
     runs-on: ubuntu-latest
     strategy:
       matrix:
