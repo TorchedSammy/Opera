@@ -49,14 +49,15 @@ func main() {
 	go func() {
 		for {
 			d := getData(c)
-			prevPos := opera.position
+			//prevPos := opera.position
 			opera.position = d.GetPosition()
 			// if set id is same as current set, check our pos
 			if d.GetSetID() == currentSet {
 				// this is kinda weird as sometimes the position is not updated while
 				// its playing which causes a pause once and playing after
 				// only fix seems to be changing gosumemory update times ...
-				if prevPos == d.GetPosition() && opera.playbackStatus != mpris.PlaybackPaused {
+				// might put behind an option, but for now just comment out
+				/*if prevPos == d.GetPosition() && opera.playbackStatus != mpris.PlaybackPaused {
 					// set status to paused if the position is same as before,
 					// but only when our status isnt paused to not spam dbus
 					opera.setPlaybackStatus(mpris.PlaybackPaused)
@@ -70,7 +71,7 @@ func main() {
 					conn.Emit(objectPath, "org.freedesktop.DBus.Properties.PropertiesChanged", objectInterface, map[string]dbus.Variant{
 						"PlaybackStatus": dbus.MakeVariant(mpris.PlaybackPlaying),
 					})
-				}
+				}*/
 				continue
 			}
 			currentSet = d.GetSetID()
