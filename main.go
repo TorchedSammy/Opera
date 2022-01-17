@@ -8,6 +8,7 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/gorilla/websocket"
+	"github.com/Pauloo27/go-mpris"
 )
 
 var busName = "org.mpris.MediaPlayer2.opera"
@@ -35,7 +36,9 @@ func main() {
 	}
 	currentSet = initData.GetSetID()
 
-	opera := &player{}
+	opera := &player{
+		playbackStatus: mpris.PlaybackPlaying,
+	}
 
 	conn.Export(opera, objectPath, "org.freedesktop.DBus.Properties")
 	conn.RequestName(busName, dbus.NameFlagDoNotQueue)
@@ -46,8 +49,28 @@ func main() {
 	go func() {
 		for {
 			d := getData(c)
-			// if set id is same as current set, do nothing
+			prevPos := opera.position
+			opera.position = d.GetPosition()
+			// if set id is same as current set, check our pos
 			if d.GetSetID() == currentSet {
+				// this is kinda weird as sometimes the position is not updated while
+				// its playing which causes a pause once and playing after
+				// only fix seems to be changing gosumemory update times ...
+				if prevPos == d.GetPosition() && opera.playbackStatus != mpris.PlaybackPaused {
+					// set status to paused if the position is same as before,
+					// but only when our status isnt paused to not spam dbus
+					opera.setPlaybackStatus(mpris.PlaybackPaused)
+					fmt.Println("Paused")
+					conn.Emit(objectPath, "org.freedesktop.DBus.Properties.PropertiesChanged", objectInterface, map[string]dbus.Variant{
+						"PlaybackStatus": dbus.MakeVariant(mpris.PlaybackPaused),
+					})
+				} else if prevPos != d.GetPosition() && opera.playbackStatus == mpris.PlaybackPaused {
+					opera.setPlaybackStatus(mpris.PlaybackPlaying)
+					fmt.Println("Playing")
+					conn.Emit(objectPath, "org.freedesktop.DBus.Properties.PropertiesChanged", objectInterface, map[string]dbus.Variant{
+						"PlaybackStatus": dbus.MakeVariant(mpris.PlaybackPlaying),
+					})
+				}
 				continue
 			}
 			currentSet = d.GetSetID()
