@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 // struct of data gosumemory sends over ws
 type gosumemory struct {
 	Settings struct {
@@ -18,6 +20,11 @@ type gosumemoryBeatmap struct {
 	ID int `json:"id"`
 	SetID int `json:"set"`
 	Metadata beatmapMetadata `json:"metadata"`
+	Time gosumemoryBeatmapTime `json:"time"`
+}
+
+type gosumemoryBeatmapTime struct {
+	Current int `json:"current"`
 }
 
 type beatmapMetadata struct {
@@ -35,4 +42,10 @@ func (g *gosumemory) GetMusicTitle() string {
 
 func (g *gosumemory) GetMusicArtist() string {
 	return g.Menu.Beatmap.Metadata.Artist
+}
+
+func (g *gosumemory) GetPosition() time.Duration {
+	// make duration from current time
+	currentTime := time.Duration(g.Menu.Beatmap.Time.Current) * time.Millisecond
+	return currentTime
 }
