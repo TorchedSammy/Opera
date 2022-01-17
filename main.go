@@ -9,6 +9,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/gorilla/websocket"
 	"github.com/Pauloo27/go-mpris"
+	"github.com/spf13/pflag"
 )
 
 var busName = "org.mpris.MediaPlayer2.opera"
@@ -17,8 +18,17 @@ var objectInterface = "org.mpris.MediaPlayer2.Player"
 var wsUrl = "ws://127.0.0.1:24050/ws"
 var mdata metadata
 var currentSet int
+var version = "0.1.0"
 
 func main() {
+	verflag := pflag.BoolP("version", "v", false, "Print version")
+	pflag.Parse()
+
+	if *verflag {
+		fmt.Println("Opera v" + version)
+		os.Exit(0)
+	}
+
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		panic(err)
