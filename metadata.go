@@ -29,7 +29,7 @@ func (m *metadata) toMap() map[string]interface{} {
 		mprisMap["xesam:title"] = m.Title
 	}
 	if m.Artist != "" {
-		mprisMap["xesam:artist"] = m.Artist
+		mprisMap["xesam:artist"] = []string{m.Artist}
 	}
 	if m.Length != 0 {
 		mprisMap["mpris:length"] = m.Length.Microseconds()
