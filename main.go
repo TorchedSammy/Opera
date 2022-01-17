@@ -36,7 +36,8 @@ func main() {
 
 	c, _, err := websocket.DefaultDialer.Dial(wsUrl, nil)
 	if err != nil {
-		panic(err)
+		fmt.Println("Could not connect to websocket, is Gosumemory running?")
+		os.Exit(1)
 	}
 	defer c.Close()
 	initData := getData(c)
